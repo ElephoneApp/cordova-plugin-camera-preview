@@ -244,6 +244,46 @@
                          }
 
                          CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
+						 
+						 NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+
+            NSDate *today = [NSDate date];
+            NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+            [dateFormat setDateFormat:@"MMddyyyy_HHmmssSS"];
+            NSString *dateString = [dateFormat stringFromDate:today];
+            NSString *filePath = [[paths objectAtIndex:0] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@_image.jpg",dateString]];
+            NSFileManager *fileManager = [NSFileManager defaultManager];
+            NSError *error;
+            int count;
+            NSString *dirPath = [[paths objectAtIndex:0] stringByAppendingPathComponent:@""];
+            NSString *remFilePath;
+            NSArray *directoryContent = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:dirPath error:NULL];
+            for (count = 0; count < (int)[directoryContent count]; count++)
+            {
+                remFilePath =[directoryContent objectAtIndex:count];
+                NSLog(@"File %d: %@", (count + 1), remFilePath);
+
+                if ([remFilePath rangeOfString:@".jpg"].location == NSNotFound) {
+                    NSLog(@"%@ was not a jpg", remFilePath);
+                }
+                else
+                {
+
+                    [fileManager removeItemAtPath:[[paths objectAtIndex:0] stringByAppendingPathComponent:remFilePath] error:&error];
+                    if (error) {
+                        NSLog(@"Could not delete file -:%@ ",[error localizedDescription]);
+
+                    }
+                    else
+                    {
+                        NSLog(@"Successfully removed:%@ ",remFilePath);
+                    }
+                }
+            }
+
+            // Save image.
+            UIImage *finalUImage = [[UIImage alloc] initWithCGImage:previewImage];
+            [UIImageJPEGRepresentation(finalUImage,1) writeToFile:filePath atomically:YES];
 
                          ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
 
