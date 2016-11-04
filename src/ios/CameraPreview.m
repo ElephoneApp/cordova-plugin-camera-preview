@@ -245,7 +245,7 @@
 
                          CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
 						 
-						 NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+			NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 
             NSDate *today = [NSDate date];
             NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
@@ -282,7 +282,7 @@
             }
 
             // Save image.
-            UIImage *finalUImage = [[UIImage alloc] initWithCGImage:previewImage];
+            UIImage *finalUImage = [[UIImage alloc] initWithCGImage:finalImage];
             [UIImageJPEGRepresentation(finalUImage,1) writeToFile:filePath atomically:YES];
 
                          ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
@@ -309,6 +309,7 @@
                                  orientation = ALAssetOrientationRight;
                          }
 
+						/*
                          // task 1
                          dispatch_group_enter(group);
                          [library writeImageToSavedPhotosAlbum:previewImage orientation:ALAssetOrientationUp completionBlock:^(NSURL *assetURL, NSError *error) {
@@ -334,6 +335,7 @@
                                   }
                                   dispatch_group_leave(group);
                           }];
+						  */
 
                          dispatch_group_notify(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
                                 NSMutableArray *params = [[NSMutableArray alloc] init];
@@ -346,8 +348,7 @@
                                         [params addObject:[NSString stringWithFormat:@"CameraPreview: %@ - %@ — %@", [photosAlbumError localizedDescription], [photosAlbumError localizedFailureReason], remedy]];
                                 } else {
                                         // Success returns two elements in the returned array
-                                        [params addObject:originalPicturePath];
-                                        [params addObject:previewPicturePath];
+                                        [params addObject:filePath];
                                 }
 
                                 CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
