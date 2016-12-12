@@ -50,6 +50,10 @@
       </feature>
     </config-file>
 
+	<config-file target="*-Info.plist" parent="NSCameraUsageDescription">
+      <string>Used to show camera preview</string>
+    </config-file>
+
     <header-file src="src/ios/CameraPreview.h" />
     <source-file src="src/ios/CameraPreview.m" />
 
@@ -69,7 +73,7 @@
     <framework src="OpenGLES.framework" />
     <framework src="GLKit.framework" />
     <framework src="CoreVideo.framework" />
-
+	<framework src="QuartzCore.framework"/>
   </platform>
 
 </plugin>
