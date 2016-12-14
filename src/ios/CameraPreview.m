@@ -2,7 +2,7 @@
 #import <Cordova/CDV.h>
 #import <Cordova/CDVPlugin.h>
 #import <Cordova/CDVInvokedUrlCommand.h>
-
+#import <CoreGraphics/CoreGraphics.h>
 #import "CameraPreview.h"
 
 @implementation CameraPreview
@@ -41,8 +41,8 @@
                 //display the camera bellow the webview
                 if (toBack) {
                         //make transparent
-                        self.webView.opaque = NO;
-                        self.webView.backgroundColor = [UIColor clearColor];
+                        //self.webView.opaque = NO;
+                        //self.webView.backgroundColor = [UIColor clearColor];
                         [self.viewController.view insertSubview:self.cameraRenderController.view atIndex:0];
                 }
                 else{
@@ -189,17 +189,26 @@
 }
 - (void) invokeTakePicture:(CGFloat) maxWidth withHeight:(CGFloat) maxHeight {
         AVCaptureConnection *connection = [self.sessionManager.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
+	
+	__weak CameraRenderController *weakRenderController = self.cameraRenderController;
+        __weak CameraSessionManager *weakSessionManager = self.sessionManager;
+        __weak CameraPreview *weakSelf = self;
+	
         [self.sessionManager.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^(CMSampleBufferRef sampleBuffer, NSError *error) {
 
                  NSLog(@"Done creating still image");
 
                  if (error) {
                          NSLog(@"%@", error);
+			 CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+             	  	 [pluginResult setKeepCallbackAsBool:true];
+             	 	 [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
                  } else {
-                         [self.cameraRenderController.renderLock lock];
-                         CIImage *previewCImage = self.cameraRenderController.latestFrame;
-                         CGImageRef previewImage = [self.cameraRenderController.ciContext createCGImage:previewCImage fromRect:previewCImage.extent];
-                         [self.cameraRenderController.renderLock unlock];
+		  	 [weakRenderController.renderLock lock];
+		  	 CIImage *previewCImage = weakRenderController.latestFrame;
+		  	 CGImageRef previewImage = [weakRenderController.ciContext createCGImage:previewCImage fromRect:previewCImage.extent];;
+
+		  	 [weakRenderController.renderLock unlock];
 
                          NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:sampleBuffer];
                          UIImage *capturedImage  = [[UIImage alloc] initWithData:imageData];
@@ -226,7 +235,7 @@
                          CIImage *finalCImage;
 
                          //fix front mirroring
-                         if (self.sessionManager.defaultCamera == AVCaptureDevicePositionFront) {
+                         if (weakSessionManager.defaultCamera == AVCaptureDevicePositionFront) {
                                  CGAffineTransform matrix = CGAffineTransformTranslate(CGAffineTransformMakeScale(1, -1), 0, capturedCImage.extent.size.height);
                                  imageToFilter = [capturedCImage imageByApplyingTransform:matrix];
                          } else {
@@ -235,15 +244,15 @@
 
                          CIFilter *filter = [self.sessionManager ciFilter];
                          if (filter != nil) {
-                                 [self.sessionManager.filterLock lock];
+                                 [weakSelf.sessionManager.filterLock lock];
                                  [filter setValue:imageToFilter forKey:kCIInputImageKey];
                                  finalCImage = [filter outputImage];
-                                 [self.sessionManager.filterLock unlock];
+                                 [weakSelf.sessionManager.filterLock unlock];
                          } else {
                                  finalCImage = imageToFilter;
                          }
 
-                         CGImageRef finalImage = [self.cameraRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
+                         CGImageRef finalImage = [weakRenderController.ciContext createCGImage:finalCImage fromRect:finalCImage.extent];
 						 
 			NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 
@@ -327,7 +336,7 @@
 
                                 CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:params];
                                 [pluginResult setKeepCallbackAsBool:true];
-                                [self.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
+                                [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:self.onPictureTakenHandlerId];
                         });
                  }
          }];
