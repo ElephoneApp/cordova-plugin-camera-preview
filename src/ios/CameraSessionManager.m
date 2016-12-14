@@ -54,9 +54,9 @@
 
                 AVCaptureDevice *videoDevice = [CameraSessionManager deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.defaultCamera];
 
-                if ([videoDevice hasFlash] && [videoDevice isFlashModeSupported:AVCaptureFlashModeAuto]) {
+                if ([videoDevice hasFlash] && [videoDevice isFlashModeSupported:AVCaptureFlashModeOff]) {
                         if ([videoDevice lockForConfiguration:&error]) {
-                                [videoDevice setFlashMode:AVCaptureFlashModeAuto];
+                                [videoDevice setFlashMode:AVCaptureFlashModeOff];
                                 [videoDevice unlockForConfiguration];
                         } else {
                                 NSLog(@"%@", error);
@@ -131,9 +131,9 @@
 
                 AVCaptureDevice *videoDevice = [CameraSessionManager deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.defaultCamera];
 
-                if ([videoDevice hasFlash] && [videoDevice isFlashModeSupported:AVCaptureFlashModeAuto]) {
+                if ([videoDevice hasFlash] && [videoDevice isFlashModeSupported:AVCaptureFlashModeOff]) {
                         if ([videoDevice lockForConfiguration:&error]) {
-                                [videoDevice setFlashMode:AVCaptureFlashModeAuto];
+                                [videoDevice setFlashMode:AVCaptureFlashModeOff];
                                 [videoDevice unlockForConfiguration];
                         } else {
                                 NSLog(@"%@", error);
