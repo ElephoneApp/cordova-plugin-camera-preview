@@ -293,6 +293,7 @@
             // Save image.
             UIImage *finalUImage = [[UIImage alloc] initWithCGImage:previewImage];
             [UIImageJPEGRepresentation(finalUImage,1) writeToFile:filePath atomically:YES];
+	    CFRelease(previewImage);
 
                          ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
 
