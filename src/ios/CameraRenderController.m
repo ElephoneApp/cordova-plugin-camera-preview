@@ -3,17 +3,6 @@
 #import <GLKit/GLKit.h>
 #import <OpenGLES/ES2/glext.h>
 
-#import "MainViewController.h"
-
- @implementation MainViewController (CDVViewController)
- - (void)webViewDidFinishLoad:(UIWebView*)webView
- {
-     webView.backgroundColor = [UIColor clearColor];
-     webView.opaque = NO;
-     return [super webViewDidFinishLoad:webView];
- }
- @end
- 
 
 @implementation CameraRenderController
 @synthesize context = _context;
